@@ -1,11 +1,12 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import Layout from '../../../components/Layout';
 import BlogCard from '../../../components/BlogCard';
 import { getAllBlogs } from '../../../utils/api';
 import { Blog } from '../../../types';
 import { FiSearch, FiGrid, FiList, FiTrendingUp, FiClock, FiFilter, FiX } from 'react-icons/fi';
+import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
 
 export default function Blogs() {
   const [blogs, setBlogs] = useState<Blog[]>([]);
@@ -71,20 +72,203 @@ export default function Blogs() {
   // Get featured blogs (most liked)
   const featuredBlogs = [...blogs].sort((a, b) => (b.likesCount || 0) - (a.likesCount || 0)).slice(0, 3);
 
+  // For page transition and parallax effects
+  const [isLoaded, setIsLoaded] = useState(false);
+  const heroRef = useRef(null);
+  const { scrollY } = useScroll();
+  const parallaxY = useTransform(scrollY, [0, 500], [0, -100]);
+  const opacityBg = useTransform(scrollY, [0, 200], [1, 0.5]);
+  const scale = useTransform(scrollY, [0, 300], [1, 1.1]);
+  
+  useEffect(() => {
+    // Trigger the entrance animation after a small delay
+    const timer = setTimeout(() => setIsLoaded(true), 100);
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <Layout>
-      <div className="bg-gradient-to-b from-gray-900 to-gray-800 min-h-screen pb-16">
-        {/* Hero Section */}
-        <div className="relative bg-gradient-to-r from-blue-900 to-purple-900 overflow-hidden">
-          <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:20px_20px]"></div>
+      <motion.div 
+        className="bg-gradient-to-b from-gray-900 to-gray-800 min-h-screen pb-16"
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+      >
+        {/* Floating particles effect */}
+        <div className="fixed inset-0 z-0 pointer-events-none">
+          {[...Array(15)].map((_, i) => (
+            <motion.div
+              key={i}
+              className="absolute w-3 h-3 rounded-full bg-blue-500 opacity-10"
+              initial={{
+                x: Math.random() * (typeof window !== 'undefined' ? window.innerWidth : 1000),
+                y: Math.random() * (typeof window !== 'undefined' ? window.innerHeight : 800),
+              }}
+              animate={{
+                x: Math.random() * (typeof window !== 'undefined' ? window.innerWidth : 1000),
+                y: Math.random() * (typeof window !== 'undefined' ? window.innerHeight : 800),
+                scale: [0.5, Math.random() + 0.5, 0.5],
+                opacity: [0.1, Math.random() * 0.3, 0.1],
+              }}
+              transition={{
+                duration: Math.random() * 20 + 15,
+                repeat: Infinity,
+                ease: "linear",
+              }}
+            />
+          ))}
+        </div>
+
+        {/* Hero Section with Parallax */}
+        <motion.div 
+          ref={heroRef}
+          style={{ opacity: opacityBg }}
+          className="relative bg-gradient-to-r from-blue-900 to-purple-900 overflow-hidden"
+        >
+          {/* Parallax moving background */}
+          <motion.div 
+            style={{ y: parallaxY, scale }} 
+            className="absolute inset-0 opacity-10 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:20px_20px]"
+          ></motion.div>
           
           <div className="container mx-auto px-4 py-16">
             <div className="text-center max-w-3xl mx-auto">
-              <h1 className="text-4xl md:text-5xl font-bold text-white mb-6">Discover Amazing Stories</h1>
-              <p className="text-lg text-blue-100 mb-8">Explore our collection of thought-provoking articles written by our community of passionate writers.</p>
+              {/* Animated heading with continuous effects */}
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="mb-6 relative"
+              >
+                {/* 3D rotating cube effect behind the title */}
+                <div className="perspective-1000 absolute inset-0 flex justify-center items-center">
+                  <motion.div
+                    className="w-64 h-64 opacity-10"
+                    animate={{ 
+                      rotateX: [0, 360], 
+                      rotateY: [0, 360],
+                    }}
+                    transition={{
+                      duration: 20,
+                      repeat: Infinity,
+                      ease: "linear"
+                    }}
+                  >
+                    <div className="absolute inset-0 bg-blue-500 rounded-lg filter blur-2xl"></div>
+                  </motion.div>
+                </div>
+                
+                <motion.div 
+                  className="absolute -top-10 -left-10 w-20 h-20 rounded-full bg-blue-500 filter blur-3xl opacity-20"
+                  animate={{ 
+                    scale: [1, 1.2, 1],
+                    opacity: [0.2, 0.3, 0.2],
+                  }}
+                  transition={{ 
+                    duration: 5, 
+                    repeat: Infinity,
+                    repeatType: "reverse" 
+                  }}
+                />
+                
+                <motion.div 
+                  className="absolute -bottom-10 -right-10 w-20 h-20 rounded-full bg-purple-500 filter blur-3xl opacity-20"
+                  animate={{ 
+                    scale: [1, 1.2, 1],
+                    opacity: [0.2, 0.3, 0.2],
+                  }}
+                  transition={{ 
+                    duration: 4,
+                    delay: 1, 
+                    repeat: Infinity,
+                    repeatType: "reverse" 
+                  }}
+                />
+                
+                {/* Enhanced main title with 3D hover */}
+                <h1 className="text-4xl md:text-5xl font-bold relative inline-block perspective-1000 z-10">
+                  {["Discover", "Amazing", "Stories"].map((word, wordIndex) => (
+                    <motion.span 
+                      key={wordIndex} 
+                      className="inline-block mr-4 cursor-default"
+                      whileHover={{ 
+                        rotateY: [0, 15, 0], 
+                        scale: 1.05,
+                        color: "#60a5fa",
+                        transition: { duration: 0.8 }
+                      }}
+                    >
+                      {word.split("").map((char, charIndex) => (
+                        <motion.span 
+                          key={`${wordIndex}-${charIndex}`}
+                          className="inline-block text-white"
+                          animate={{ 
+                            y: [0, -5, 0],
+                            color: [
+                              "rgb(255, 255, 255)",
+                              "rgb(147, 197, 253)", // blue-300
+                              "rgb(255, 255, 255)"
+                            ]
+                          }}
+                          transition={{ 
+                            duration: 3,
+                            delay: charIndex * 0.05 + wordIndex * 0.2,
+                            repeat: Infinity,
+                            repeatType: "reverse",
+                            ease: "easeInOut"
+                          }}
+                        >
+                          {char}
+                        </motion.span>
+                      ))}
+                      {" "}
+                    </motion.span>
+                  ))}
+                </h1>
+                
+                {/* Upgraded underline animation */}
+                <motion.div
+                  className="h-1 bg-gradient-to-r from-blue-400 via-purple-400 to-blue-400 mt-3 mx-auto relative overflow-hidden"
+                  initial={{ width: 0 }}
+                  animate={{ width: "100%" }}
+                  transition={{ duration: 1.5, ease: "easeOut" }}
+                >
+                  <motion.div 
+                    className="absolute inset-0 bg-white opacity-50"
+                    animate={{ x: ["0%", "100%"] }}
+                    transition={{ 
+                      duration: 2, 
+                      repeat: Infinity,
+                      ease: "linear" 
+                    }}
+                  />
+                </motion.div>
+              </motion.div>
+
+              {/* Animated subtitle */}
+              <motion.p
+                className="text-lg text-blue-100 mb-8"
+                initial={{ opacity: 0 }}
+                animate={{ 
+                  opacity: [0.7, 1, 0.7],
+                  y: [2, 0, 2]
+                }}
+                transition={{
+                  duration: 6,
+                  repeat: Infinity,
+                  repeatType: "reverse",
+                  ease: "easeInOut"
+                }}
+              >
+                Explore our collection of thought-provoking articles written by our community of passionate writers.
+              </motion.p>
               
-              {/* Search Bar */}
-              <div className="relative max-w-2xl mx-auto">
+              {/* Enhanced search bar */}
+              <motion.div 
+                className="relative max-w-2xl mx-auto"
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.8, duration: 0.6 }}
+              >
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <FiSearch className="h-5 w-5 text-gray-400" />
                 </div>
@@ -93,7 +277,7 @@ export default function Blogs() {
                   placeholder="Search articles by title or content..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="bg-gray-800 text-white w-full pl-10 pr-4 py-3 rounded-xl border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="bg-gray-800 text-white w-full pl-10 pr-4 py-3 rounded-xl border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all transform focus:scale-[1.02] duration-300"
                 />
                 {searchQuery && (
                   <button 
@@ -103,34 +287,99 @@ export default function Blogs() {
                     <FiX className="h-5 w-5" />
                   </button>
                 )}
-              </div>
+                
+                {/* Search pulse effect */}
+                <motion.div 
+                  className="absolute inset-0 rounded-xl border-2 border-blue-500 pointer-events-none"
+                  animate={{ 
+                    opacity: [0, 0.2, 0],
+                    scale: [1, 1.05, 1],
+                  }}
+                  transition={{ 
+                    duration: 2,
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                  }}
+                ></motion.div>
+              </motion.div>
             </div>
           </div>
-        </div>
+        </motion.div>
         
-        <div className="container mx-auto px-4 -mt-8">
+        {/* Content container with staggered animations */}
+        <motion.div 
+          className="container mx-auto px-4 -mt-8 relative z-10"
+          initial="hidden"
+          animate={isLoaded ? "visible" : "hidden"}
+          variants={{
+            hidden: { opacity: 0 },
+            visible: { 
+              opacity: 1,
+              transition: {
+                staggerChildren: 0.1,
+                delayChildren: 0.3
+              }
+            }
+          }}
+        >
           {/* Featured Blogs Section */}
           {!loading && !error && featuredBlogs.length > 0 && !searchQuery && !activeTag && (
-            <div className="mb-12">
+            <motion.div 
+              className="mb-12"
+              variants={{
+                hidden: { y: 20, opacity: 0 },
+                visible: { y: 0, opacity: 1 }
+              }}
+            >
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-white">Featured Blogs</h2>
+                <motion.h2 
+                  className="text-2xl font-bold text-white relative inline-block"
+                  whileHover={{ scale: 1.05 }}
+                >
+                  Featured Blogs
+                  <motion.div 
+                    className="absolute -bottom-1 left-0 h-0.5 bg-blue-500"
+                    initial={{ width: 0 }}
+                    animate={{ width: "100%" }}
+                    transition={{ duration: 0.8, ease: "easeOut" }}
+                  />
+                </motion.h2>
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {featuredBlogs.map(blog => (
-                  <div key={blog._id} className="bg-blue-600 bg-opacity-10 backdrop-blur-sm rounded-xl p-1 transform transition duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-blue-900/20">
+                {featuredBlogs.map((blog, index) => (
+                  <motion.div 
+                    key={blog._id} 
+                    className="bg-blue-600 bg-opacity-10 backdrop-blur-sm rounded-xl p-1 transform transition duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-blue-900/20"
+                    variants={{
+                      hidden: { y: 20, opacity: 0 },
+                      visible: { 
+                        y: 0, 
+                        opacity: 1,
+                        transition: { delay: index * 0.1 }
+                      }
+                    }}
+                    whileHover={{ scale: 1.03 }}
+                  >
                     <BlogCard 
                       blog={blog} 
                       refreshBlogs={fetchBlogs}
                     />
-                  </div>
+                  </motion.div>
                 ))}
               </div>
-            </div>
+            </motion.div>
           )}
           
-          {/* Filters and Controls */}
-          <div className="bg-gray-800 bg-opacity-60 backdrop-blur-sm rounded-xl p-4 mb-8 flex flex-col md:flex-row items-center justify-between sticky top-20 z-10 border border-gray-700">
+          {/* Filters and Controls with glass effect */}
+          <motion.div 
+            className="bg-gray-800 bg-opacity-60 backdrop-blur-sm rounded-xl p-4 mb-8 flex flex-col md:flex-row items-center justify-between sticky top-20 z-10 border border-gray-700"
+            variants={{
+              hidden: { y: 20, opacity: 0 },
+              visible: { y: 0, opacity: 1 }
+            }}
+            whileHover={{ boxShadow: "0 8px 30px rgba(37, 99, 235, 0.2)" }}
+          >
             <div className="flex items-center space-x-2 mb-4 md:mb-0">
               <span className="text-gray-300"><FiFilter /></span>
               <div className="flex flex-wrap gap-2">
@@ -185,10 +434,16 @@ export default function Blogs() {
                 </button>
               </div>
             </div>
-          </div>
+          </motion.div>
           
           {/* Content Section */}
-          <div className="relative">
+          <motion.div 
+            className="relative"
+            variants={{
+              hidden: { opacity: 0 },
+              visible: { opacity: 1 }
+            }}
+          >
             {/* Loading State */}
             {loading && (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -253,38 +508,50 @@ export default function Blogs() {
               </div>
             )}
             
-            {/* Blog Grid */}
+            {/* Blog Grid with improved transitions */}
             {!loading && !error && filteredBlogs.length > 0 && (
-              <>
+              <div>
                 <div className={viewMode === 'grid' ? 
                   'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6' : 
                   'space-y-6'
                 }>
-                  {filteredBlogs.map(blog => (
-                    <div 
+                  {filteredBlogs.map((blog, index) => (
+                    <motion.div 
                       key={blog._id} 
                       className={`transform transition duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-blue-900/10 ${
                         viewMode === 'list' ? 'border border-gray-700 rounded-xl overflow-hidden' : ''
                       }`}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ 
+                        opacity: 1, 
+                        y: 0,
+                        transition: { delay: index * 0.05 }
+                      }}
+                      whileHover={{ scale: 1.02 }}
                     >
                       <BlogCard 
                         blog={blog} 
                         refreshBlogs={fetchBlogs}
                       />
-                    </div>
+                    </motion.div>
                   ))}
                 </div>
                 
                 {/* Results Count */}
-                <div className="mt-8 text-center text-sm text-gray-400">
+                <motion.div 
+                  className="mt-8 text-center text-sm text-gray-400"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.5 }}
+                >
                   Showing {filteredBlogs.length} {filteredBlogs.length === 1 ? 'blog' : 'blogs'}
                   {(searchQuery || activeTag) && ' matching your filters'}
-                </div>
-              </>
+                </motion.div>
+              </div>
             )}
-          </div>
-        </div>
-      </div>
+          </motion.div>
+        </motion.div>
+      </motion.div>
     </Layout>
   );
 }

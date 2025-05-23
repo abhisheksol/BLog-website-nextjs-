@@ -16,13 +16,20 @@ const AddBlog = () => {
     }
   };
 
-  const convertToBase64 = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = error => reject(error);
+  // Upload to Cloudinary and return URL
+  const uploadToCloudinary = async (file: File): Promise<string> => {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', 'ml_default'); // your Cloudinary unsigned preset
+
+    const response = await fetch(`https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`, {
+      method: 'POST',
+      body: formData,
     });
+
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error?.message || 'Upload failed');
+    return data.secure_url;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -42,15 +49,17 @@ const AddBlog = () => {
     setLoading(true);
 
     try {
-      const base64Image = await convertToBase64(imageFile);
+      // 1. Upload to Cloudinary
+      const imageUrl = await uploadToCloudinary(imageFile);
 
+      // 2. Send blog data to your API
       const res = await fetch('http://localhost:3000/api/blogs/add', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ title, desc, image: base64Image }),
+        body: JSON.stringify({ title, desc, image: imageUrl }),
       });
 
       const data = await res.json();
@@ -124,40 +133,3 @@ const AddBlog = () => {
 };
 
 export default AddBlog;
-
-
-// 'use client';
-
-// import React, { useEffect } from 'react';
-// import { useRouter } from 'next/navigation';
-// import Layout from '../../../../components/Layout';
-// import BlogForm from '../../../../components/BlogForm';
-// import { useAuth } from '../../../../contexts/AuthContext';
-
-// export default function NewBlog() {
-//   const { user, loading } = useAuth();
-//   const router = useRouter();
-
-//   useEffect(() => {
-//     // Redirect if not logged in
-//     if (!user && !loading) {
-//       router.push('/login');
-//     }
-//   }, [user, loading, router]);
-
-//   if (loading) {
-//     return (
-//       <Layout>
-//         <div className="flex justify-center items-center h-64">
-//           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-//         </div>
-//       </Layout>
-//     );
-//   }
-
-//   return (
-//     <Layout>
-//       <BlogForm />
-//     </Layout>
-//   );
-// }

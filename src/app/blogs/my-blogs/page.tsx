@@ -178,8 +178,11 @@ export default function MyBlogsPage() {
     <Layout>
       <div className="bg-gray-900 min-h-screen">
         {/* Profile Header */}
-        <div className="bg-gradient-to-r from-blue-900 to-purple-900 py-12 px-4">
-          <div className="container mx-auto max-w-6xl">
+        <div className="bg-gradient-to-r from-blue-900 to-purple-900 py-12 px-4 relative overflow-hidden">
+          {/* Add dot pattern background */}
+          <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:20px_20px]"></div>
+          
+          <div className="container mx-auto max-w-6xl relative z-10">
             <div className="flex flex-col md:flex-row items-center md:items-start gap-8">
               {/* Avatar */}
               <div className="w-32 h-32 rounded-full bg-gray-700 border-4 border-gray-800 overflow-hidden flex items-center justify-center text-4xl font-bold text-gray-300">
