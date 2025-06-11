@@ -7,17 +7,9 @@ import { useAuth } from '../contexts/AuthContext';
 import { usePathname } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { 
-  RiHome5Line, RiHome5Fill,
-  RiBook2Line, RiBook2Fill, 
-  RiFileList3Line, RiFileList3Fill,
-  RiQuillPenLine, RiQuillPenFill,
   RiLogoutCircleRLine,
-  RiLoginCircleLine,
-  RiUserAddLine,
   RiMenuLine, RiCloseLine,
-  RiSearchLine,
   RiUserLine, 
-  RiNotification3Line,
   RiArrowDownSLine
 } from 'react-icons/ri';
 
@@ -30,18 +22,8 @@ const Navbar: React.FC = () => {
   const pathname = usePathname();
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
   const [hasToken, setHasToken] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
-  const [searchActive, setSearchActive] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 10);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   useEffect(() => {
     const checkToken = () => {
@@ -86,47 +68,43 @@ const Navbar: React.FC = () => {
 
   return (
     <>
-      <header className={`fixed w-full z-50 transition-all duration-300 ${
-        scrolled 
-          ? 'bg-[#0f111a]/95 backdrop-blur-md shadow-lg py-2' 
-          : 'bg-[#0f111a] py-3'
-      }`}>
-        <div className="container mx-auto px-4">
-          <div className="flex justify-between items-center">
+      <header className="fixed w-full z-50 bg-transparent">
+        <div className="container mx-auto px-6">
+          <div className="flex justify-between items-center h-16">
             {/* Logo */}
-            <Link href="/" className="flex items-center gap-3 group">
-              <div className="w-9 h-9 relative overflow-hidden rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600">
-                <span className="absolute inset-0 flex items-center justify-center text-white font-bold text-lg">B</span>
-              </div>
-              <div className="flex flex-col">
-                <span className="text-xl font-bold bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent group-hover:from-indigo-300 group-hover:via-purple-300 group-hover:to-pink-300 transition-all duration-300">
-                  Blog App
-                </span>
-                <span className="text-xs text-gray-400 -mt-1">Share your story</span>
+            <Link href="/" className="flex items-center">
+              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-lg">⚡</span>
               </div>
             </Link>
 
-            {/* Search Bar - Desktop */}
-            <div className="hidden md:flex relative mx-4 flex-1 max-w-xl">
-              <div className={`flex items-center w-full bg-[#1a1d2d]/70 rounded-full overflow-hidden transition-all duration-300 
-                ${searchActive ? 'ring-2 ring-indigo-500/30' : 'ring-0'}`}>
-                <div className="pl-4 pr-2">
-                  <RiSearchLine className="text-gray-400" size={18} />
-                </div>
-                <input 
-                  type="text" 
-                  placeholder="Search articles..." 
-                  className="bg-transparent py-2 px-2 text-sm text-white w-full focus:outline-none"
-                  onFocus={() => setSearchActive(true)}
-                  onBlur={() => setSearchActive(false)}
-                />
-              </div>
-            </div>
+            {/* Desktop Navigation - Center */}
+            <nav className="hidden md:flex items-center space-x-8">
+              <NavLink href="/" active={isActive('/')}>
+                Home
+              </NavLink>
+              <NavLink href="/blogs" active={isActive('/blogs')}>
+                Blogs
+              </NavLink>
+              {hasToken && (
+                <>
+                  <NavLink href="/blogs/my-blogs" active={isActive('/blogs/my-blogs')}>
+                    My Blogs
+                  </NavLink>
+                  <NavLink href="/blogs/new" active={isActive('/blogs/new')}>
+                    Write
+                  </NavLink>
+                </>
+              )}
+              <NavLink href="/freelance" active={isActive('/freelance')}>
+                Freelance
+              </NavLink>
+            </nav>
 
             {/* Mobile menu toggle */}
             <div className="md:hidden flex items-center">
               <button 
-                className="p-2 rounded-full hover:bg-[#1a1d2d]/80 transition"
+                className="p-2 rounded-lg hover:bg-gray-700 transition"
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
               >
                 {isMenuOpen ? 
@@ -136,112 +114,72 @@ const Navbar: React.FC = () => {
               </button>
             </div>
 
-            {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center gap-1">
-              <NavLink href="/" active={isActive('/')}>
-                {isActive('/') ? <RiHome5Fill size={18} /> : <RiHome5Line size={18} />}
-                <span>Home</span>
-              </NavLink>
-
-              <NavLink href="/blogs" active={isActive('/blogs')}>
-                {isActive('/blogs') ? <RiBook2Fill size={18} /> : <RiBook2Line size={18} />}
-                <span>Blogs</span>
-              </NavLink>
-
-              {hasToken && (
-                <>
-                  <NavLink href="/blogs/my-blogs" active={isActive('/blogs/my-blogs')}>
-                    {isActive('/blogs/my-blogs') ? <RiFileList3Fill size={18} /> : <RiFileList3Line size={18} />}
-                    <span>My Blogs</span>
-                  </NavLink>
-
-                  <NavLink href="/blogs/new" active={isActive('/blogs/new')}>
-                    {isActive('/blogs/new') ? <RiQuillPenFill size={18} /> : <RiQuillPenLine size={18} />}
-                    <span>Write</span>
-                  </NavLink>
-
-                  {/* Notification Bell */}
-                  <button className="p-2 rounded-full hover:bg-[#1a1d2d]/80 transition relative text-gray-300 hover:text-white">
-                    <RiNotification3Line size={20} />
-                    <span className="absolute top-1 right-1 bg-red-500 rounded-full w-2 h-2"></span>
+            {/* Auth buttons - Right side */}
+            <div className="hidden md:flex items-center space-x-3">
+              {hasToken ? (
+                <div className="relative">
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowUserMenu(!showUserMenu);
+                    }}
+                    className="flex items-center gap-2 py-2 px-3 rounded-lg hover:bg-gray-700 transition"
+                  >
+                    <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-medium text-sm">
+                      {user?.username?.charAt(0).toUpperCase() || "A"}
+                    </div>
+                    <RiArrowDownSLine size={16} className={`text-gray-400 transition-transform duration-200 ${showUserMenu ? 'rotate-180' : ''}`} />
                   </button>
-                  
-                  {/* User Menu */}
-                  <div className="relative ml-1">
-                    <button 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setShowUserMenu(!showUserMenu);
-                      }}
-                      className="flex items-center gap-2 py-1 px-2 rounded-full hover:bg-[#1a1d2d]/80 transition"
+
+                  {showUserMenu && (
+                    <motion.div 
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 10 }}
+                      transition={{ duration: 0.2 }}
+                      className="absolute right-0 mt-2 w-48 py-2 bg-[#1e293b] rounded-lg shadow-xl border border-gray-600 z-50"
+                      onClick={(e) => e.stopPropagation()}
                     >
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center text-white font-medium text-sm">
-                        {user?.username?.charAt(0).toUpperCase() || "A"}
+                      <div className="px-4 py-2 border-b border-gray-600">
+                        <p className="text-sm font-medium text-white">{user?.username || "User"}</p>
+                        <p className="text-xs text-gray-400 truncate">user@example.com</p>
                       </div>
-                      <RiArrowDownSLine size={16} className={`text-gray-400 transition-transform duration-200 ${showUserMenu ? 'rotate-180' : ''}`} />
-                    </button>
-
-                    {/* Dropdown menu */}
-                    {showUserMenu && (
-                      <motion.div 
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 10 }}
-                        transition={{ duration: 0.2 }}
-                        className="absolute right-0 mt-2 w-48 py-2 bg-[#171923] rounded-lg shadow-xl border border-gray-800 z-50"
-                        onClick={(e) => e.stopPropagation()}
+                      
+                      <Link href="/profile" className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-gray-200 hover:bg-gray-700">
+                        <RiUserLine size={14} />
+                        <span>Profile</span>
+                      </Link>
+                      
+                      <div className="border-t border-gray-600 my-1"></div>
+                      
+                      <button 
+                        onClick={handleLogout}
+                        className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-gray-700"
                       >
-                        <div className="px-4 py-2 border-b border-gray-800">
-                          <p className="text-sm font-medium text-white">{user?.username || "abhisheksols"}</p>
-                          <p className="text-xs text-gray-400 truncate">user@example.com</p>
-                        </div>
-                        
-                        <Link href="/profile" className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-gray-200 hover:bg-gray-800/60">
-                          <RiUserLine size={14} />
-                          <span>Profile</span>
-                        </Link>
-                        
-                        <Link href="/settings" className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-gray-200 hover:bg-gray-800/60">
-                          <RiUserLine size={14} />
-                          <span>Settings</span>
-                        </Link>
-                        
-                        <div className="border-t border-gray-800 my-1"></div>
-                        
-                        <button 
-                          onClick={handleLogout}
-                          className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-gray-800/60"
-                        >
-                          <RiLogoutCircleRLine size={14} />
-                          <span>Logout</span>
-                        </button>
-                      </motion.div>
-                    )}
-                  </div>
-                </>
-              )}
-
-              {/* Auth buttons for logged out users */}
-              {!hasToken && (
-                <div className="flex items-center gap-2">
+                        <RiLogoutCircleRLine size={14} />
+                        <span>Logout</span>
+                      </button>
+                    </motion.div>
+                  )}
+                </div>
+              ) : (
+                <>
                   <Link 
                     href="/login"
-                    className="py-1.5 px-4 text-sm rounded-full text-gray-300 hover:text-white transition-colors duration-200 flex items-center gap-1.5"
+                    className="px-4 py-2 text-sm text-white hover:text-gray-300 transition-colors"
                   >
-                    <RiLoginCircleLine size={18} />
-                    <span>Login</span>
+                    Login
                   </Link>
                   
                   <Link 
                     href="/register"
-                    className="py-1.5 px-4 text-sm font-medium rounded-full bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white transition-all duration-200 shadow-lg shadow-indigo-600/20 flex items-center gap-1.5"
+                    className="px-4 py-2 text-sm font-medium rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition-colors"
                   >
-                    <RiUserAddLine size={18} />
-                    <span>Sign Up</span>
+                    Sign up
                   </Link>
-                </div>
+                </>
               )}
-            </nav>
+            </div>
           </div>
         </div>
 
@@ -250,87 +188,66 @@ const Navbar: React.FC = () => {
           initial={false}
           animate={{ height: isMenuOpen ? 'auto' : 0, opacity: isMenuOpen ? 1 : 0 }}
           transition={{ duration: 0.2 }}
-          className="md:hidden overflow-hidden bg-[#0f111a]/95 backdrop-blur-md"
+          className="md:hidden overflow-hidden bg-black/20 backdrop-blur-sm border-t border-white/10"
         >
-          <div className="container mx-auto px-4 py-2">
-            {/* Mobile Search */}
-            <div className="relative mb-4">
-              <div className="flex items-center w-full bg-[#1a1d2d]/70 rounded-full overflow-hidden">
-                <div className="pl-4 pr-2">
-                  <RiSearchLine className="text-gray-400" />
-                </div>
-                <input 
-                  type="text" 
-                  placeholder="Search articles..." 
-                  className="bg-transparent py-2 px-2 text-sm text-white w-full focus:outline-none"
-                />
-              </div>
-            </div>
-
-            {/* Mobile Nav Links */}
-            <div className="flex flex-col gap-1 pb-4">
+          <div className="container mx-auto px-6 py-4">
+            <div className="flex flex-col space-y-3">
               <MobileNavLink href="/" active={isActive('/')} onClick={() => setIsMenuOpen(false)}>
-                {isActive('/') ? <RiHome5Fill size={20} /> : <RiHome5Line size={20} />}
-                <span>Home</span>
+                Home
               </MobileNavLink>
-
               <MobileNavLink href="/blogs" active={isActive('/blogs')} onClick={() => setIsMenuOpen(false)}>
-                {isActive('/blogs') ? <RiBook2Fill size={20} /> : <RiBook2Line size={20} />}
-                <span>Explore Blogs</span>
+                Blogs
               </MobileNavLink>
-
               {hasToken && (
                 <>
                   <MobileNavLink href="/blogs/my-blogs" active={isActive('/blogs/my-blogs')} onClick={() => setIsMenuOpen(false)}>
-                    {isActive('/blogs/my-blogs') ? <RiFileList3Fill size={20} /> : <RiFileList3Line size={20} />}
-                    <span>My Blogs</span>
+                    My Blogs
                   </MobileNavLink>
-
-                  <MobileNavLink href="/blogs/new" active={isActive('/blogs/new')} onClick={() => setIsMenuOpen(false)}>
-                    {isActive('/blogs/new') ? <RiQuillPenFill size={20} /> : <RiQuillPenLine size={20} />}
-                    <span>Write New Blog</span>
+                  <MobileNavLink href="/blogs/write" active={isActive('/blogs/write')} onClick={() => setIsMenuOpen(false)}>
+                    Write
                   </MobileNavLink>
-                  
-                  <div className="mt-2 pt-2 border-t border-gray-800">
-                    <div className="px-3 py-2 rounded-lg bg-[#1a1d2d]/50 flex items-center gap-3 mb-3">
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center text-white font-medium">
-                        {user?.username?.charAt(0).toUpperCase() || "A"}
-                      </div>
-                      <div>
-                        <div className="text-white font-medium">{user?.username || "abhisheksols"}</div>
-                        <div className="text-xs text-gray-400">View profile</div>
-                      </div>
-                    </div>
-                    
-                    <button
-                      onClick={handleLogout}
-                      className="w-full py-2.5 px-3 rounded-lg flex items-center justify-center gap-2 bg-red-500/10 text-red-400 hover:bg-red-500/20 transition"
-                    >
-                      <RiLogoutCircleRLine size={18} />
-                      <span className="font-medium">Logout</span>
-                    </button>
-                  </div>
                 </>
               )}
+              <MobileNavLink href="/freelance" active={isActive('/freelance')} onClick={() => setIsMenuOpen(false)}>
+                Freelance
+              </MobileNavLink>
 
-              {!hasToken && (
-                <div className="flex flex-col gap-2 mt-2 pt-2 border-t border-gray-800">
+              {hasToken ? (
+                <div className="mt-4 pt-4 border-t border-gray-600">
+                  <div className="px-3 py-2 rounded-lg bg-gray-700 flex items-center gap-3 mb-3">
+                    <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-medium">
+                      {user?.username?.charAt(0).toUpperCase() || "A"}
+                    </div>
+                    <div>
+                      <div className="text-white font-medium">{user?.username || "User"}</div>
+                      <div className="text-xs text-gray-400">View profile</div>
+                    </div>
+                  </div>
+                  
+                  <button
+                    onClick={handleLogout}
+                    className="w-full py-2.5 px-3 rounded-lg flex items-center justify-center gap-2 bg-red-600 text-white hover:bg-red-700 transition"
+                  >
+                    <RiLogoutCircleRLine size={18} />
+                    <span className="font-medium">Logout</span>
+                  </button>
+                </div>
+              ) : (
+                <div className="flex flex-col gap-3 mt-4 pt-4 border-t border-gray-600">
                   <Link 
                     href="/login" 
-                    className="w-full py-2.5 px-3 rounded-lg flex items-center justify-center gap-2 bg-[#1a1d2d] text-white hover:bg-[#1f2235] transition"
+                    className="w-full py-2.5 px-3 rounded-lg flex items-center justify-center text-white hover:bg-gray-700 transition"
                     onClick={() => setIsMenuOpen(false)}
                   >
-                    <RiLoginCircleLine size={18} />
                     <span className="font-medium">Login</span>
                   </Link>
                   
                   <Link 
                     href="/register"
-                    className="w-full py-2.5 px-3 rounded-lg flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-600 to-violet-600 text-white hover:from-indigo-500 hover:to-violet-500 transition"
+                    className="w-full py-2.5 px-3 rounded-lg flex items-center justify-center bg-blue-600 text-white hover:bg-blue-700 transition"
                     onClick={() => setIsMenuOpen(false)}
                   >
-                    <RiUserAddLine size={18} />
-                    <span className="font-medium">Create Account</span>
+                    <span className="font-medium">Sign up</span>
                   </Link>
                 </div>
               )}
@@ -358,20 +275,13 @@ const NavLink: React.FC<{
   return (
     <Link
       href={href}
-      className={`relative flex items-center gap-1.5 px-3 py-2 rounded-full text-sm transition-all duration-200
+      className={`text-sm font-medium transition-colors duration-200
         ${active 
-          ? 'text-white bg-[#1a1d2d]/70' 
-          : 'text-gray-300 hover:text-white hover:bg-[#1a1d2d]/50'
+          ? 'text-white' 
+          : 'text-gray-300 hover:text-white'
         }`}
     >
       {children}
-      {active && (
-        <motion.div
-          layoutId="navbar-indicator"
-          className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 bg-indigo-500 rounded-full"
-          transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-        />
-      )}
     </Link>
   );
 };
@@ -387,10 +297,10 @@ const MobileNavLink: React.FC<{
     <Link
       href={href}
       onClick={onClick}
-      className={`flex items-center gap-3 px-3 py-3 rounded-lg transition
+      className={`py-2 px-3 rounded-lg transition text-center
         ${active 
-          ? 'bg-[#1a1d2d]/80 text-white font-medium' 
-          : 'text-gray-300 hover:bg-[#1a1d2d]/50 hover:text-white'
+          ? 'bg-gray-700 text-white font-medium' 
+          : 'text-gray-300 hover:bg-gray-700 hover:text-white'
         }`}
     >
       {children}
