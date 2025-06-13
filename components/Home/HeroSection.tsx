@@ -107,11 +107,16 @@ const HeroSection: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.8, duration: 0.8 }}
           >
-            <Link 
-              href="/blogs" 
-              className="inline-flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg shadow-lg transition-all duration-300 transform hover:scale-105"
-            >
-              Get started
+            <Link href="/blogs" className="group relative">
+              <div className="absolute -inset-1 bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400 rounded-xl blur opacity-70 group-hover:opacity-100 transition duration-300"></div>
+              <div className="relative px-8 py-4 bg-gradient-to-r from-purple-500/20 to-cyan-500/20 backdrop-blur-sm border border-white/10 rounded-xl text-white font-medium transition-all duration-300 group-hover:scale-105 group-hover:bg-gradient-to-r group-hover:from-purple-500/30 group-hover:to-cyan-500/30">
+                <span className="flex items-center gap-2">
+                  <svg className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                  </svg>
+                  Start Journey
+                </span>
+              </div>
             </Link>
           </motion.div>
         </motion.div>
@@ -150,11 +155,17 @@ const HeroSection: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6, duration: 0.8 }}
           >
-            <Link 
-              href="/blogs" 
-              className="inline-flex items-center px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg shadow-lg transition-all duration-300 transform hover:scale-105"
-            >
-              Get started
+            <Link href="/blogs" className="group relative inline-block">
+              <div className="absolute -inset-1 bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400 rounded-2xl blur opacity-70 group-hover:opacity-100 transition duration-500"></div>
+              <div className="relative px-10 py-5 bg-gradient-to-r from-purple-500/20 to-cyan-500/20 backdrop-blur-sm border border-white/10 rounded-2xl text-white font-semibold text-lg transition-all duration-300 group-hover:scale-105 group-hover:bg-gradient-to-r group-hover:from-purple-500/30 group-hover:to-cyan-500/30 group-hover:shadow-2xl">
+                <span className="flex items-center gap-3">
+                  <svg className="w-6 h-6 transition-transform duration-300 group-hover:translate-x-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                  </svg>
+                  Start Journey
+                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform -skew-x-12"></div>
+                </span>
+              </div>
             </Link>
           </motion.div>
         </motion.div>
